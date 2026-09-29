@@ -4,114 +4,135 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>clawd.fun — pair anything with Claude</title>
-  <meta name="description" content="A play-money, pump.fun-style launchpad where every coin is something paired with Claude." />
+  <meta name="description" content="A play-money launchpad where every coin is something paired with Claude. Launch, trade and graduate coins on a simulated bonding curve." />
+  <meta name="theme-color" content="#0c0c0e" />
+  <meta property="og:title" content="clawd.fun — pair anything with Claude" />
+  <meta property="og:description" content="Launch, trade and graduate Claude-paired coins on a simulated bonding curve. Play money only." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d97757'/%3E%3Cg stroke='%23fff' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M16 6v20M6 16h20M9 9l14 14M23 9L9 23'/%3E%3C/g%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="clawd.fun home">
-      <span class="brand-mark" aria-hidden="true">✳</span>
-      <span>clawd<span class="accent">.fun</span></span>
-    </a>
-    <div class="wallet">
-      <span class="wallet-bal" id="walletBal">◎ 0.00</span>
-      <span class="wallet-note">play SOL</span>
-      <button class="btn ghost small" id="faucetBtn" title="Top up play money">faucet</button>
+    <div class="topbar-inner">
+      <a class="brand" href="#/" aria-label="clawd.fun home">
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 32 32"><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M16 6v20M6 16h20M9 9l14 14M23 9L9 23"/></g></svg></span>
+        <span class="brand-name">clawd<span class="dim">.fun</span></span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#/" data-nav="board">Board</a>
+        <a href="#/portfolio" data-nav="portfolio">Portfolio</a>
+        <a href="#/how" data-nav="how">How it works</a>
+      </nav>
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input id="search" type="search" placeholder="Search coins" aria-label="Search coins" autocomplete="off" />
+        <kbd>/</kbd>
+      </label>
+      <div class="top-actions">
+        <button class="wallet-pill" id="walletPill" title="Play-money balance — click to top up">
+          <span class="sol-dot" aria-hidden="true"></span><span id="walletBal">0.00</span><span class="dim">SOL</span>
+        </button>
+        <button class="btn btn-primary" id="launchTop">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Launch coin</span>
+        </button>
+      </div>
+    </div>
+    <div class="statsbar">
+      <div class="statsbar-inner">
+        <div class="stats" id="stats"></div>
+        <div class="feed" id="feed" aria-live="off"></div>
+      </div>
     </div>
   </header>
 
-  <div class="ticker" aria-live="off"><div class="ticker-track" id="tickerTrack"></div></div>
-
-  <main>
-    <section class="hero">
-      <h1>Pair anything with <span class="accent">Claude</span>.<br />Launch it in one click.</h1>
-      <p class="sub">Pick a thing. We pair it with Claude, mint a coin on a bonding curve, and let the market decide.
-        Hit ~$69k market cap and it graduates. All play money — nobody gets rugged.</p>
-      <form class="quick-pair" id="quickPair" autocomplete="off">
-        <span class="qp-label">Claude ×</span>
-        <input id="quickInput" maxlength="24" placeholder="cats, pizza, the moon…" aria-label="Thing to pair with Claude" />
-        <button class="btn primary" type="submit">pair it →</button>
-      </form>
-      <div class="chips" id="presetChips"></div>
-    </section>
-
-    <section class="koth" id="koth" aria-label="King of the hill"></section>
-
-    <section class="board">
-      <div class="board-head">
-        <div class="tabs" role="tablist" id="sortTabs">
-          <button role="tab" data-sort="trending" class="active">🔥 trending</button>
-          <button role="tab" data-sort="new">✨ new</button>
-          <button role="tab" data-sort="mcap">📈 market cap</button>
-          <button role="tab" data-sort="graduated">🎓 graduated</button>
-          <button role="tab" data-sort="mine">👛 my bags</button>
-        </div>
-        <input class="search" id="search" placeholder="search pairs / tickers" aria-label="Search coins" />
-      </div>
-      <div class="grid" id="grid"></div>
-      <p class="empty" id="emptyMsg" hidden>Nothing here yet. Pair something with Claude.</p>
-    </section>
-  </main>
+  <main id="app" tabindex="-1"></main>
 
   <footer class="footer">
-    <p><strong>clawd.fun</strong> is an unofficial fan project and a simulation. It is not affiliated with or endorsed by Anthropic.
-      No wallets, no chains, no real money — balances and trades live in your browser.</p>
-    <button class="btn ghost small" id="resetBtn">reset everything</button>
+    <div class="footer-inner">
+      <div>
+        <div class="brand small"><span class="logo" aria-hidden="true"><svg viewBox="0 0 32 32"><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M16 6v20M6 16h20M9 9l14 14M23 9L9 23"/></g></svg></span><span class="brand-name">clawd<span class="dim">.fun</span></span></div>
+        <p class="muted">A simulation. No wallets, no blockchain, no real money — balances and trades live in your browser.
+          Unofficial fan project, not affiliated with or endorsed by Anthropic.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="resetBtn">Reset simulation</button>
+    </div>
   </footer>
 
-  <!-- Create coin modal -->
-  <dialog id="createDlg" class="dlg">
-    <form method="dialog" class="create" id="createForm" autocomplete="off">
+  <!-- Launch dialog -->
+  <dialog id="createDlg" class="dlg" aria-labelledby="createTitle">
+    <form class="create" id="createForm" autocomplete="off" novalidate>
       <div class="dlg-head">
-        <h2>Pair with Claude</h2>
-        <button class="x" value="cancel" aria-label="Close">×</button>
+        <div>
+          <h2 id="createTitle">Launch a coin</h2>
+          <p class="muted">Pair anything with Claude. Launching is free.</p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
       </div>
-      <div class="create-body">
-        <div class="create-preview">
-          <div class="coin-art big" id="cpArt"></div>
-          <div>
-            <div class="cp-name" id="cpName">Claude × ?</div>
-            <div class="cp-ticker" id="cpTicker">$????</div>
+
+      <div class="dlg-body">
+        <div class="field">
+          <label for="cPair">Claude ×</label>
+          <div class="input-affix">
+            <input id="cPair" maxlength="24" placeholder="cats, pizza, the moon…" required />
+            <button type="button" class="btn btn-ghost btn-sm" id="rerollBtn" title="Generate a new name, ticker and pitch">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6" /><path d="M20 10A8 8 0 0 0 6.3 6.3L4 10m16 4-2.3 3.7A8 8 0 0 1 4 14" /></svg>
+              Regenerate
+            </button>
           </div>
         </div>
-        <label>Claude ×
-          <input id="cPair" required maxlength="24" placeholder="what are we pairing?" />
-        </label>
-        <div class="row2">
-          <label>Name
-            <input id="cName" maxlength="32" />
-          </label>
-          <label>Ticker
-            <input id="cTicker" maxlength="10" />
-          </label>
+
+        <div class="create-grid">
+          <div class="field">
+            <label>Image</label>
+            <div class="img-drop" id="imgDrop" tabindex="0" role="button" aria-label="Upload image">
+              <div id="cpArt" class="coin-art xl"></div>
+              <span class="img-hint">Upload</span>
+              <input type="file" id="cImage" accept="image/*" hidden />
+            </div>
+          </div>
+          <div class="create-fields">
+            <div class="field">
+              <label for="cName">Name</label>
+              <input id="cName" maxlength="32" />
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="cTicker">Ticker</label>
+                <div class="input-prefix"><span>$</span><input id="cTicker" maxlength="10" /></div>
+              </div>
+              <div class="field">
+                <label for="cEmoji">Emoji</label>
+                <input id="cEmoji" maxlength="8" />
+              </div>
+            </div>
+          </div>
         </div>
-        <label>Emoji
-          <input id="cEmoji" maxlength="4" placeholder="🦀" />
-        </label>
-        <label>Pitch
+
+        <div class="field">
+          <label for="cDesc">Description</label>
           <textarea id="cDesc" rows="3" maxlength="200"></textarea>
-        </label>
-        <button type="button" class="btn ghost small" id="rerollBtn">🎲 ask Claude for another take</button>
-        <label>Dev buy (optional, play SOL)
-          <input id="cDevBuy" type="number" min="0" step="0.1" value="0" />
-        </label>
-        <p class="fine">Launching is free. Supply is 1,000,000,000. The first 793.1M trade on the bonding curve.</p>
+        </div>
+
+        <div class="field">
+          <label for="cDevBuy">Initial buy <span class="muted">(optional)</span></label>
+          <div class="input-suffix"><input id="cDevBuy" type="number" min="0" step="0.1" value="0" inputmode="decimal" /><span>SOL</span></div>
+          <p class="hint" id="devHint">Be the first buyer of your own coin.</p>
+        </div>
       </div>
+
       <div class="dlg-foot">
-        <button class="btn primary wide" value="launch" id="launchBtn">launch coin ✳</button>
+        <p class="hint">Supply 1,000,000,000 · 793.1M sold on the curve · 1% trade fee</p>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Launch coin</button>
       </div>
     </form>
   </dialog>
 
-  <!-- Coin detail modal -->
-  <dialog id="coinDlg" class="dlg wide-dlg">
-    <div class="coin-view" id="coinView"></div>
-  </dialog>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 
   <script src="app.js"></script>
 </body>
