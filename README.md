@@ -18,7 +18,25 @@ a Claude-flavored pitch and procedural coin art, then launches it on a bonding c
 - **Coin pages** — market-cap chart, trade history, and a reply thread
 - Light and dark mode, works on mobile
 
-## Run it
+## Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffrieshimself-cpu%2Fclawd-&project-name=clawd-fun&repository-name=clawd-fun)
+
+It's a plain static site: no build step, no environment variables. Either:
+
+- **Dashboard:** vercel.com → *Add New… → Project* → import this repo. Leave the framework preset on
+  **Other**, and leave the build command and output directory empty. Click *Deploy*.
+- **CLI:**
+  ```sh
+  npm i -g vercel
+  vercel          # preview deploy
+  vercel --prod   # production deploy
+  ```
+
+`vercel.json` turns on clean URLs, adds basic security headers, and makes sure browsers pick up new
+`app.js` / `style.css` right after each deploy.
+
+## Run locally
 
 Static files only — open `index.html`, or serve the folder:
 
